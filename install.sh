@@ -6,7 +6,10 @@
 #
 
 function copyFiles () {
-  cp .* ~ 
+  cp .bash* ~ 
+  cp .git-* ~
+  cp .vim* ~
+  cp .js* ~
 
   if [[ ! -d ~/.vim ]]; then
     mkdir ~/.vim && mkdir ~/.vim/colors
@@ -22,28 +25,32 @@ function copyFiles () {
 # Function that check if a command line app exists
 #
 
+# for command line programs
 function exists () {
-  if [ -z "$1" ]
-   then
-     echo "exists: Missing argument"
-   else
-    $1 -v > /dev/null 2>&1
-  fi
+  $1 -v > /dev/null 2>&1
 }
 
+# for OSX applications that don't have a command line interface
+function appDirExists () {
+  if [[ ( -d /Applications/$1 ) || ( -d ~/Applications/$1 ) ]]; then
+    return 1
+  else
+    return 0
+  fi
+}
 
 ##########################################################
 # Downloading and installing apps
 #
 
 function getBrew () {
-  ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 }
 
 function getCask () {
   if exists brew ; then
     echo "installing Cask"
-    brew install caskroom/cask/brew-cask
+    brew update && brew install caskroom/cask/brew-cask
   else
     echo "installing Brew and Cask"
     getBrew && brew install caskroom/cask/brew-cask
@@ -60,7 +67,7 @@ function getNode () {
 }
 
 function getiTerm2 () {
-  if [[ ! -d /Applications/iTerm.app/ ]]; then
+  if ! appDirExists iTerm.app ; then
     echo "install iTerm2"
     brew cask install iterm2
   else
@@ -78,7 +85,7 @@ function getGulp () {
 }
 
 function getAlfred () {
-  if [[ ! -d /Applications/Alfred\ 2.app/ ]]; then
+  if ! appDirExists "Alfred\ 2.app" ; then
     echo "installing Alfred"
     brew cask install alfred
   else
@@ -87,7 +94,7 @@ function getAlfred () {
 }
 
 function getST3 () {
-  if [[ ! -d /Applications/Sublime\ Text.app/ ]]; then
+  if ! appDirExists "Sublime\ Text.app" ; then
     echo "installing Sublime Text 3"
     brew cask install sublime-text
   else
