@@ -1,0 +1,22 @@
+{
+  "boss": true,
+  "browser": true,
+  "curly": true,
+  "eqeqeq": true,
+  "eqnull": true,
+  "immed": false,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "node": true,
+  "sub": true,
+  "undef": true,
+  "indent": 2,
+  "expr" : true,
+  "globals": {
+    "_gaq" : true,
+    "ga" : true,
+    "$" : true,
+    "Modernizr" : true
+  }
+}
