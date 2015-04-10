@@ -1,32 +1,69 @@
+######################################################################
+# PATH
 export PATH="$PATH:~/bin"
 export PATH="$PATH:~/bash_scripts"
-#export PATH=/Applications/MAMP/bin/php/php5.5.10/bin:$PATH
 
-#####################################################################
 # Android Section
-# 
+export ANDROID_HOME=~/Development/android-sdk-macosx
+export PATH=${PATH}:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools
 
-# export ANDROID_HOME="/usr/local/opt/android-sdk"
-# export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+##################################################################
+# Setting defaults
 
-# Now run the 'android' tool to install the actual SDK stuff.
+export CLICOLOR=1
+ 
+# Set colors to match iTerm2 Terminal Colors
+export TERM=xterm-256color
 
-# The Android-SDK location for IDEs such as Eclipse, IntelliJ etc is:
-#   /usr/local/Cellar/android-sdk/23.0.2
+# Set the default editor to vim.
+export EDITOR=vim
 
-# You will have to install the platform-tools and docs EVERY time this formula
-# updates. If you want to try and fix this then see the comment in this formula.
+# set default text editor for SVN
+export SVN_EDITOR=vim
 
-# You may need to add the following to your .bashrc:
-#   export ANDROID_HOME=/usr/local/opt/android-sdk
+# Avoid succesive duplicates in the bash command history.
+export HISTCONTROL=ignoredups
 
-# Bash completion has been installed to:
-#   /usr/local/etc/bash_completion.d
-# ==> Summary
-# 🍺  /usr/local/Cellar/android-sdk/23.0.2: 1578 files, 113M, built in 23 seconds
+# Append commands to the bash command history file (~/.bash_history)
+# instead of overwriting it.
+shopt -s histappend
+
+# Append commands to the history every time a prompt is shown,
+# instead of after closing the session.
+PROMPT_COMMAND='history -a'
+
+##################################################################
+# Alias Section
+
+##### generic aslias #####
+
+alias reload='source ~/.bash_profile'
+alias editBash='subl ~/.bashrc'
+
+# add everything that needs to be added based on results of svn status
+alias svnadd="svn st | grep \? | awk '''{print \"svn add \"$2 }''' | bash" 
+
+# Make some possibly destructive commands more interactive.
+alias rm='rm -i'
+alias mv='mv -i'
+alias cp='cp -i'
+
+# Add some easy shortcuts for formatted directory listings and add a touch of color.
+alias ll='ls -lFG'
+alias la='ls -lahFG'
+alias ls='ls -FG'
+
+# Make grep more user friendly by highlighting matches
+# and exclude grepping through .svn folders.
+alias grep='grep --color=auto --exclude-dir=\.svn'
+
+# start a simple browser Sync session on current folder
+alias staticSync='browser-sync start --files "css/*.css, js/*.js, *.html, **/*.html" --server --directory'
+
+
 ######################################################################
+# COLORS (used in some functions below)
 
-# COLORS
 BLACK=$(tput setaf 0)
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
@@ -43,26 +80,8 @@ BLINK=$(tput blink)
 REVERSE=$(tput smso)
 UNDERLINE=$(tput smul)
 
-export CLICOLOR=1
- 
-# Set colors to match iTerm2 Terminal Colors
-export TERM=xterm-256color
-
-# set default text editor for SVN
-export SVN_EDITOR=vim
-
-# SVN add all unversioned files recursively 
-alias svn_add="svn add --force * --auto-props --parents --depth infinity -q"
-
+##################################################################
 # personal functions
-
-function reload () {
-  source ~/.bash_profile
-}
-
-function editBash () {
-  vim ~/.bash_profile
-}
 
 function svn_ignores () {
     svn propset svn:ignore ".DS_Store" .
@@ -80,10 +99,6 @@ function myzip () {
       # $2 is the files to be zipped
       zip -vr $1 $2 -x "*.DS_Store"
     fi
-}
- 
-function la () {
-  ls -lah
 }
 
 function localhost () {

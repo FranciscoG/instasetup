@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO
+# have all the rc and profiles point to the ones in this repo instead of copying them
+# 
+# switch to zshell and make a zshell version of this installer
 
 #########################################################
 # the easy stuff,  moving files already in this repo
@@ -22,7 +26,7 @@ function copyFiles () {
 
 
 #########################################################
-# Function that check if a command line app exists
+# Function that checks if a command line app exists
 #
 
 # for command line programs
@@ -119,8 +123,8 @@ function doPrefs () {
 
   #Store screenshots in subfolder on desktop
   #not sure if I want this yet so leaving it commented
-  #mkdir ~/Desktop/Screenshots
-  #defaults write com.apple.screencapture location ~/Desktop/Screenshots
+  mkdir ~/Desktop/Screenshots
+  defaults write com.apple.screencapture location ~/Desktop/Screenshots
 }
 
 #########################################################
@@ -128,11 +132,19 @@ function doPrefs () {
 #
 
 function setupSubl () {
+  # Check if Sublime was installed Manually
   if [[ -d /Applications/Sublime\ Text.app/ ]]; then
     if [[ ! -d ~/bin ]]; then
       mkdir -p ~/bin && ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ~/bin/subl
     elif ! exists subl ; then
       ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ~/bin/subl
+    fi
+  # homebrew cask installs and symlinks to the ~/App.. folder so we check if it's in there too
+  elif [[ -d ~/Applications/Sublime\ Text.app/ ]]; then
+    if [[ ! -d ~/bin ]]; then
+      mkdir -p ~/bin && ln -s "~/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ~/bin/subl
+    elif ! exists subl ; then
+      ln -s "~/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ~/bin/subl
     fi
   fi
 }
