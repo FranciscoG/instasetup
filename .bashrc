@@ -7,6 +7,18 @@ export PATH="$PATH:~/bash_scripts"
 export ANDROID_HOME=~/Development/android-sdk-macosx
 export PATH=${PATH}:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools
 
+#########################################################
+# Set alternative NPM global stuff so you don't need SUDO
+# src: https://github.com/sindresorhus/guides/blob/master/npm-global-without-sudo.md
+#
+NPM_PACKAGES="${HOME}/.npm-packages"
+NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
+PATH="$NPM_PACKAGES/bin:$PATH"
+# Unset manpath so we can inherit from /etc/manpath via the `manpath`
+# command
+unset MANPATH # delete if you already modified MANPATH elsewhere in your config
+MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
+
 ##################################################################
 # Setting defaults
 
@@ -41,7 +53,8 @@ alias reload='source ~/.bash_profile'
 alias editBash='subl ~/.bashrc'
 
 # add everything that needs to be added based on results of svn status
-alias svnadd="svn st | grep \? | awk '''{print \"svn add \"$2 }''' | bash" 
+alias svnadd="svn st | grep ^? | sed 's/?    //' | xargs svn add"
+alias svnrm="svn st | grep ^! | sed 's/!    //' | xargs svn rm" 
 
 # Make some possibly destructive commands more interactive.
 alias rm='rm -i'
@@ -120,11 +133,6 @@ function localhost () {
 function is_git_repository {
   git branch > /dev/null 2>&1
 }
- 
-# Detect whether the current directory is a subversion repository.
-function is_svn_repository {
-  test -d .svn
-}
 
 function set_git_branch {
  
@@ -180,26 +188,6 @@ function set_git_branch {
   PS1='${MAGENTA}\u${WHITE} in ${GREEN}\w${WHITE}${MAGENTA}`__git_ps1 " on %s"`${WHITE}\r\n`set_prefix`${NORMAL}${CYAN}\033[s\033[u${WHITE} '
 }
 
-
-# Determine the branch information for this subversion repository. No support
-# for svn status, since that needs to hit the remote repository.
-function set_svn_branch {
-  # Capture the output of the "git status" command.
-  svn_info="$(svn info | egrep '^URL: ' 2> /dev/null)"
- 
-  # Get the name of the branch.
-  branch_pattern="^URL: .*/(branches|tags)/([^/]+)"
-  trunk_pattern="^URL: .*/trunk(/.*)?$"
-  if [[ ${svn_info} =~ $branch_pattern ]]; then
-    branch=${BASH_REMATCH[2]}
-  elif [[ ${svn_info} =~ $trunk_pattern ]]; then
-    branch='trunk'
-  fi
- 
-  # Set the final branch string.
-  BRANCH="(${branch}) "
-}
-
 # Return the prompt symbol to use, colorized based on the return value of the
 # previous command.
 function set_prompt_symbol () {
@@ -219,19 +207,11 @@ function set_bash_prompt () {
   # Set the BRANCH variable.
   if is_git_repository ; then
     set_git_branch
-  elif is_svn_repository ; then
-    set_svn_branch
-    PS1="${MAGENTA}\u${WHITE} in ${GREEN}\w ${BRANCH}${PROMPT_SYMBOL} ${WHITE}"
   else
     BRANCH=''
     PS1="${MAGENTA}\u${WHITE} in ${GREEN}\w ${BRANCH}${PROMPT_SYMBOL} ${WHITE}"
-  fi
-
-  #set_svn_branch
-  #PS1="${MAGENTA}\u${WHITE} in ${GREEN}\w ${BRANCH}${PROMPT_SYMBOL} ${WHITE}"
-  
+  fi  
 }
 
 # Tell bash to execute this function just before displaying its prompt.
 PROMPT_COMMAND=set_bash_prompt
-# PS1="${MAGENTA}\u${WHITE} in ${GREEN}\w ${BRANCH}${PROMPT_SYMBOL} ${WHITE}"

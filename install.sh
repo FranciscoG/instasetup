@@ -7,6 +7,7 @@
 
 #########################################################
 # the easy stuff,  moving files already in this repo
+# making directories
 #
 
 function copyFiles () {
@@ -14,6 +15,7 @@ function copyFiles () {
   cp .git-* ~
   cp .vim* ~
   cp .js* ~
+  cp .npmrc ~
 
   if [[ ! -d ~/.vim ]]; then
     mkdir ~/.vim && mkdir ~/.vim/colors
@@ -21,9 +23,13 @@ function copyFiles () {
     mkdir ~/.vim/colors
   fi
 
+  # src: https://github.com/sindresorhus/guides/blob/master/npm-global-without-sudo.md
+  if [[ ! -d ~/.npm-packages ]]; then
+    mkdir ~/.npm-packages
+  fi
+
   cp solarized.vim ~/.vim/colors
 }
-
 
 #########################################################
 # Function that checks if a command line app exists
