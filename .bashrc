@@ -72,6 +72,14 @@ alias grep='grep --color=auto --exclude-dir=\.svn'
 
 # start a simple browser Sync session on current folder
 alias staticSync='browser-sync start --files "css/*.css, js/*.js, *.html, **/*.html" --server --directory'
+alias superStaticSync='browser-sync start --files "**/*" --server --directory'
+
+# shortcut to merge in from trunk
+alias trunkMerge="svn merge ^/trunk"
+
+# Make grep more user friendly by highlighting matches
+# and exclude grepping through .svn folders.
+alias grep='grep --color=auto --exclude-dir=\.svn'
 
 
 ######################################################################
@@ -100,6 +108,18 @@ function svn_ignores () {
     svn propset svn:ignore ".DS_Store" .
     svn propset svn:ignore "Thumbs.db" .
     svn propset svn:ignore "node_modules" .
+}
+
+function jiraFile() {
+  # curl -D- -u {username}:{password} -X POST -H "X-Atlassian-Token: nocheck" -F "file=@{path/to/file}" http://{base-url}/rest/api/2/issue/{issue-key}/attachments
+  echo uploading $1 to http://jira.fcb.com:8080/rest/api/2/issue/$2/attachments
+  curl -D- -u USERNAME:PASSWORD -X POST -H "X-Atlassian-Token: nocheck" -F "file=@$1" $1 http://JIRA-URL/rest/api/2/issue/$2/attachments
+}
+
+function jiraComment() {
+  # curl -D- -u fred:fred -X POST --data {see below} -H "Content-Type: application/json" http://kelpie9:8081/rest/api/2/issue/QA-31/comment
+  echo adding comment to $1
+  curl -D- -u USERNAME:PASSWORD -X POST --data "{\"body\":\"$2\"}" -H "Content-Type: application/json" http://JIRA-URL/rest/api/2/issue/$1/comment
 }
 
 function myzip () {

@@ -85,15 +85,6 @@ function getiTerm2 () {
   fi
 }
 
-function getGulp () {
-  if ! exists gulp ; then
-    echo "installing Gulp globally"
-    npm install -g gulp
-  else
-    echo "Gulp is already installed"
-  fi
-}
-
 function getAlfred () {
   if ! appDirExists "Alfred\ 2.app" ; then
     echo "installing Alfred"
@@ -113,7 +104,7 @@ function getST3 () {
 }
 
 function getApps () {
-  getCask && getNode && getiTerm2 && getGulp && getAlfred && getST3
+  getCask && getNode && getiTerm2 && getAlfred && getST3
 }
 
 #########################################################
@@ -153,6 +144,9 @@ function setupSubl () {
       ln -s "~/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ~/bin/subl
     fi
   fi
+  
+  # to finish syncing packages
+  open https://packagecontrol.io/docs/syncing
 }
 
 #########################################################
