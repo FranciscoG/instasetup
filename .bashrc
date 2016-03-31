@@ -54,7 +54,13 @@ alias editBash='subl ~/.bashrc'
 
 # add everything that needs to be added based on results of svn status
 alias svnadd="svn st | grep ^? | sed 's/?    //' | xargs svn add"
-alias svnrm="svn st | grep ^! | sed 's/!    //' | xargs svn rm" 
+alias svnrm="svn st | grep ^! | sed 's/!    //' | xargs svn rm"
+alias svnrmForce="svn st | grep ^! | sed 's/!    //' | xargs svn rm --force" 
+alias svncopyurl="svn info | grep ^URL | sed 's/URL: //' | tr -d '\n' | pbcopy"
+
+# sometimes I still need Wienre
+EXTERNALIP=`ifconfig en4 | awk '$1 == "inet" {print $2}'`
+alias startWienre="open http://${EXTERNALIP}:8080 & weinre --httpPort 8080 --boundHost ${EXTERNALIP}"
 
 # Make some possibly destructive commands more interactive.
 alias rm='rm -i'
@@ -81,7 +87,19 @@ alias trunkMerge="svn merge ^/trunk"
 # and exclude grepping through .svn folders.
 alias grep='grep --color=auto --exclude-dir=\.svn'
 
+# sample function so you can SSH with password copied into clipboard already
+function gotoX () {
+  echo "*********************************"
+  echo " Password saved in Clipborard  "
+  echo "*********************************"
+  echo 'YOURPASSWROD' | tr -d '\n' | pbcopy
+  ssh username@server
+}
 
+# add something to clipboard and remove linebreak at the end
+function clip () {
+  $1 | tr -d '\n' | pbcopy
+}
 ######################################################################
 # COLORS (used in some functions below)
 
@@ -112,7 +130,7 @@ function svn_ignores () {
 
 function jiraFile() {
   # curl -D- -u {username}:{password} -X POST -H "X-Atlassian-Token: nocheck" -F "file=@{path/to/file}" http://{base-url}/rest/api/2/issue/{issue-key}/attachments
-  echo uploading $1 to http://jira.fcb.com:8080/rest/api/2/issue/$2/attachments
+  echo uploading $1 to http://jira.domain.com:8080/rest/api/2/issue/$2/attachments
   curl -D- -u USERNAME:PASSWORD -X POST -H "X-Atlassian-Token: nocheck" -F "file=@$1" $1 http://JIRA-URL/rest/api/2/issue/$2/attachments
 }
 
@@ -138,10 +156,10 @@ function localhost () {
   if [ -z "$1" ]
     then
       echo "${RED}Must supply a port number"
-      echo "${NORMAL}requires OS X 10.9+ (Mavericks or newer)"
+      echo "${NORMAL}requires OS X 10.9+ (Mavericks and newer)"
       echo "${YELLOW}usage: localhost 8000"
   else
-    php -S localhost:$1 && open http://localhost:$1
+    open http://localhost:$1 & php -S localhost:$1 
   fi
 }
 
