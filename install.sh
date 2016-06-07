@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# TODO
-# have all the rc and profiles point to the ones in this repo instead of copying them
-# 
-# switch to zshell and make a zshell version of this installer
-
 #########################################################
 # the easy stuff,  moving files already in this repo
 # making directories
@@ -120,8 +115,8 @@ function doPrefs () {
 
   #Store screenshots in subfolder on desktop
   #not sure if I want this yet so leaving it commented
-  mkdir ~/Desktop/Screenshots
-  defaults write com.apple.screencapture location ~/Desktop/Screenshots
+  #mkdir ~/Desktop/Screenshots
+  #defaults write com.apple.screencapture location ~/Desktop/Screenshots
 }
 
 #########################################################
@@ -153,6 +148,6 @@ function setupSubl () {
 # And finally we GO!
 #
 
-copyFiles && getApps && doPrefs && setupSubl
+copyFiles && doPrefs
 
 
