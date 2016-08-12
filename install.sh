@@ -1,106 +1,104 @@
 #!/bin/bash
 
 #########################################################
-# the easy stuff,  moving files already in this repo
-# making directories
+# Change the TARGETDIR for testing
 #
 
-function copyFiles () {
-  cp .bash* ~ 
-  cp .git-* ~
-  cp .vim* ~
-  cp .js* ~
-  cp .npmrc ~
-
-  if [[ ! -d ~/.vim ]]; then
-    mkdir ~/.vim && mkdir ~/.vim/colors
-  elif [[ ! -d ~/.vim/colors ]]; then
-    mkdir ~/.vim/colors
-  fi
-
-  # src: https://github.com/sindresorhus/guides/blob/master/npm-global-without-sudo.md
-  if [[ ! -d ~/.npm-packages ]]; then
-    mkdir ~/.npm-packages
-  fi
-
-  cp solarized.vim ~/.vim/colors
-}
+TARGETDIR='./test'
 
 #########################################################
-# Function that checks if a command line app exists
+# Change the TARGETDIR for testing
 #
 
-# for command line programs
+wget="$(which wget)"
+
+# check if a command line program exists
 function exists () {
   $1 -v > /dev/null 2>&1
 }
 
-# for OSX applications that don't have a command line interface
-function appDirExists () {
-  if [[ ( -d /Applications/$1 ) || ( -d ~/Applications/$1 ) ]]; then
-    return 1
+function getBrew () {
+  if ! exists brew ; then
+    echo "installing homebrew"
+    # from: http://brew.sh/
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   else
-    return 0
+    echo "Brew already installed"
   fi
 }
 
-##########################################################
-# Downloading and installing apps
+function getWget() {
+  if [ ! -f $wget ]; then
+    echo "installing wget using homebrew"
+    # from: http://www.merenbach.com/software/wget/
+    brew update && brew install wget
+    wget="$(which wget)"
+  else
+    echo "wget already installed"
+  fi
+}
+
+####################################################################
+# function that grabs an file at a URL and downloads it to targetDIR
 #
 
-function getBrew () {
-  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+function dlFile () {
+  # wget -O renamedFile.sh URL
+  wget -O $1 $2 
 }
 
-function getCask () {
-  if exists brew ; then
-    echo "installing Cask"
-    brew update && brew install caskroom/cask/brew-cask
-  else
-    echo "installing Brew and Cask"
-    getBrew && brew install caskroom/cask/brew-cask
+#########################################################
+# Download files from a URL and save them to target dir
+#
+
+function copyFiles () {
+  
+  # .bashrc
+  # https://raw.githubusercontent.com/FranciscoG/instasetup/master/.bashrc
+  dlFile ${TARGETDIR}/.bashrc https://raw.githubusercontent.com/FranciscoG/instasetup/master/.bashrc
+  
+  # .bash_profile
+  # https://raw.githubusercontent.com/FranciscoG/instasetup/master/.bash_profile
+  dlFile ${TARGETDIR}/.bash_profile https://raw.githubusercontent.com/FranciscoG/instasetup/master/.bash_profile
+
+  # .git-completion.sh
+  # https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
+  dlFile ${TARGETDIR}/.git-completion.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
+
+  # git-prompt.sh 
+  # https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh 
+  dlFile ${TARGETDIR}/.git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh 
+
+  # .vimrc
+  # https://raw.githubusercontent.com/FranciscoG/instasetup/master/.vimrc
+  dlFile ${TARGETDIR}/.vimrc https://raw.githubusercontent.com/FranciscoG/instasetup/master/.vimrc
+
+  # jshintrc
+  # https://raw.githubusercontent.com/FranciscoG/instasetup/master/.jshintrc
+  dlFile ${TARGETDIR}/.jshintrc https://raw.githubusercontent.com/FranciscoG/instasetup/master/.jshintrc
+
+  # create my simple .npmrc file
+  echo "prefix=${HOME}/.npm-packages" > ${TARGETDIR}/.npmrc
+
+  # make .vim colors directory
+  if [[ ! -d ${TARGETDIR}/.vim ]]; then
+    mkdir ${TARGETDIR}/.vim && mkdir ${TARGETDIR}/.vim/colors
+  elif [[ ! -d ${TARGETDIR}/.vim/colors ]]; then
+    mkdir ${TARGETDIR}/.vim/colors
   fi
-}
 
-function getNode () {
-  if ! exists node ; then
-    echo "installing node"
-    brew install node
-  else
-    echo "Node is already installed"
+  # solarized.vim
+  # https://raw.githubusercontent.com/altercation/vim-colors-solarized/master/colors/solarized.vim
+  dlFile ${TARGETDIR}/.vim/colors/solarized.vim https://raw.githubusercontent.com/altercation/vim-colors-solarized/master/colors/solarized.vim
+
+  # src: https://github.com/sindresorhus/guides/blob/master/npm-global-without-sudo.md
+  if [[ ! -d ${TARGETDIR}/.npm-packages ]]; then
+    mkdir ${TARGETDIR}/.npm-packages
   fi
+
 }
 
-function getiTerm2 () {
-  if ! appDirExists iTerm.app ; then
-    echo "install iTerm2"
-    brew cask install iterm2
-  else
-    echo "iTerm is already installed"
-  fi
-}
 
-function getAlfred () {
-  if ! appDirExists "Alfred\ 2.app" ; then
-    echo "installing Alfred"
-    brew cask install alfred
-  else
-    echo "Alfred is already installed"
-  fi
-}
-
-function getST3 () {
-  if ! appDirExists "Sublime\ Text.app" ; then
-    echo "installing Sublime Text 3"
-    brew cask install sublime-text
-  else
-    echo "Sublime Text 3 is already installed"
-  fi
-}
-
-function getApps () {
-  getCask && getNode && getiTerm2 && getAlfred && getST3
-}
 
 #########################################################
 # Setting System preferences
@@ -110,13 +108,13 @@ function doPrefs () {
   #Add a context menu item for showing the Web Inspector in web views
   defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 
-  #Show the ~/Library folder
-  chflags nohidden ~/Library
+  #Show the ${TARGETDIR}/Library folder
+  chflags nohidden ${TARGETDIR}/Library
 
   #Store screenshots in subfolder on desktop
   #not sure if I want this yet so leaving it commented
-  #mkdir ~/Desktop/Screenshots
-  #defaults write com.apple.screencapture location ~/Desktop/Screenshots
+  #mkdir ${TARGETDIR}/Desktop/Screenshots
+  #defaults write com.apple.screencapture location ${TARGETDIR}/Desktop/Screenshots
 }
 
 #########################################################
@@ -126,28 +124,21 @@ function doPrefs () {
 function setupSubl () {
   # Check if Sublime was installed Manually
   if [[ -d /Applications/Sublime\ Text.app/ ]]; then
-    if [[ ! -d ~/bin ]]; then
-      mkdir -p ~/bin && ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ~/bin/subl
+    if [[ ! -d ${TARGETDIR}/bin ]]; then
+      mkdir -p ${TARGETDIR}/bin && ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ${TARGETDIR}/bin/subl
     elif ! exists subl ; then
-      ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ~/bin/subl
+      ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ${TARGETDIR}/bin/subl
     fi
-  # homebrew cask installs and symlinks to the ~/App.. folder so we check if it's in there too
-  elif [[ -d ~/Applications/Sublime\ Text.app/ ]]; then
-    if [[ ! -d ~/bin ]]; then
-      mkdir -p ~/bin && ln -s "~/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ~/bin/subl
-    elif ! exists subl ; then
-      ln -s "~/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ~/bin/subl
-    fi
+    
+    # to finish syncing packages
+    open https://packagecontrol.io/docs/syncing
   fi
-  
-  # to finish syncing packages
-  open https://packagecontrol.io/docs/syncing
 }
 
 #########################################################
 # And finally we GO!
 #
 
-copyFiles && doPrefs
+getBrew && getWget && copyFiles && doPrefs && setupSubl
 
 
