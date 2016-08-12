@@ -4,7 +4,7 @@
 # Change the TARGETDIR for testing
 #
 
-TARGETDIR='./test'
+TARGETDIR='${HOME}'
 
 #########################################################
 # Change the TARGETDIR for testing

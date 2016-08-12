@@ -1,2 +1,5 @@
 .DS_Store
 test
+
+# because my markdown preview creates local html files that I definitely don't need here
+*.html
