@@ -2,18 +2,12 @@
 # PATH
 export PATH="$PATH:~/bin"
 export PATH="$PATH:~/bash_scripts"
+export PATH=~/.npm-global/bin:$PATH
 
 # Android Section
 export ANDROID_HOME=~/Development/android-sdk-macosx
 export PATH=${PATH}:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools
 
-#########################################################
-# Set alternative NPM global stuff so you don't need SUDO
-# src: https://github.com/sindresorhus/guides/blob/master/npm-global-without-sudo.md
-#
-NPM_PACKAGES="${HOME}/.npm-packages"
-NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
-PATH="$NPM_PACKAGES/bin:$PATH"
 # Unset manpath so we can inherit from /etc/manpath via the `manpath`
 # command
 unset MANPATH # delete if you already modified MANPATH elsewhere in your config

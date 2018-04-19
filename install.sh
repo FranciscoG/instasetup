@@ -77,24 +77,16 @@ function copyFiles () {
   # https://raw.githubusercontent.com/FranciscoG/instasetup/master/.jshintrc
   dlFile ${TARGETDIR}/.jshintrc https://raw.githubusercontent.com/FranciscoG/instasetup/master/.jshintrc
 
-  # create my simple .npmrc file
-  echo "prefix=${HOME}/.npm-packages" > ${TARGETDIR}/.npmrc
+  # changing global dir for npm to avoid permissions errors
+  # https://docs.npmjs.com/getting-started/fixing-npm-permissions
+  mkdir -p ${TARGETDIR}/.npm-global
 
   # make .vim colors directory
-  if [[ ! -d ${TARGETDIR}/.vim ]]; then
-    mkdir ${TARGETDIR}/.vim && mkdir ${TARGETDIR}/.vim/colors
-  elif [[ ! -d ${TARGETDIR}/.vim/colors ]]; then
-    mkdir ${TARGETDIR}/.vim/colors
-  fi
+  mkdir -p ${TARGETDIR}/.vim/colors
 
   # solarized.vim
   # https://raw.githubusercontent.com/altercation/vim-colors-solarized/master/colors/solarized.vim
   dlFile ${TARGETDIR}/.vim/colors/solarized.vim https://raw.githubusercontent.com/altercation/vim-colors-solarized/master/colors/solarized.vim
-
-  # src: https://github.com/sindresorhus/guides/blob/master/npm-global-without-sudo.md
-  if [[ ! -d ${TARGETDIR}/.npm-packages ]]; then
-    mkdir ${TARGETDIR}/.npm-packages
-  fi
 
 }
 
