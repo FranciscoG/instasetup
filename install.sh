@@ -6,6 +6,34 @@
 
 TARGETDIR='${HOME}'
 
+
+#########################################################
+# Check which OS you are on
+# http://stackoverflow.com/a/18434831/395414
+
+# Detect the platform (similar to $OSTYPE)
+OS="`uname`"
+case $OS in
+  'Linux')
+    OS='Linux'
+    ;;
+  'FreeBSD')
+    OS='FreeBSD'
+    ;;
+  'WindowsNT')
+    OS='Windows'
+    ;;
+  'Darwin') 
+    OS='Mac'
+    ;;
+  'SunOS')
+    OS='Solaris'
+    ;;
+  'AIX') ;;
+  *) ;;
+esac
+
+
 #########################################################
 # Change the TARGETDIR for testing
 #
@@ -18,25 +46,44 @@ function exists () {
 }
 
 function getBrew () {
-  if ! exists brew ; then
-    echo "installing homebrew"
-    # from: http://brew.sh/
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  else
-    echo "Brew already installed"
+  if [ "$OS" -eq "Mac" ]; then
+    if ! exists brew ; then
+      echo "installing homebrew"
+      # from: http://brew.sh/
+      /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    else
+      echo "Brew already installed"
+    fi
   fi
 }
+
+function platformInstaller () {
+  if [ "$OS" -eq "Mac" ]; then
+    brew install $1
+    return
+  fi
+
+  if [ "$OS" -eq "Linux" ]; then
+    if exists yum ; then
+      yum install $1
+    else
+      sudo apt-get $1
+    fi
+  fi
+}
+
 
 function getWget() {
   if [ ! -f $wget ]; then
     echo "installing wget using homebrew"
     # from: http://www.merenbach.com/software/wget/
-    brew update && brew install wget
+    platformInstaller wget
     wget="$(which wget)"
   else
     echo "wget already installed"
   fi
 }
+
 
 ####################################################################
 # function that grabs an file at a URL and downloads it to targetDIR
@@ -90,7 +137,19 @@ function copyFiles () {
 
 }
 
+#########################################################
+# Vim stuff
+#
 
+function installPathogen () {
+  # https://github.com/tpope/vim-pathogen
+  mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+}
+
+function installVimSensible () {
+  # https://github.com/tpope/vim-sensible
+  cd ~/.vim/bundle && git clone git://github.com/tpope/vim-sensible.git && cd ~
+}
 
 #########################################################
 # Setting System preferences
@@ -131,6 +190,6 @@ function setupSubl () {
 # And finally we GO!
 #
 
-getBrew && getWget && copyFiles && doPrefs && setupSubl
+getBrew && getWget && copyFiles && doPrefs && setupSubl && installPathogen && installVimSensible
 
 
