@@ -1,0 +1,34 @@
+[core]
+  whitespace = cr-at-eol
+[user]
+  useConfigOnly = true
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+[push]
+	default = simple
+[alias]
+  st = status
+  pfl = push --force-with-lease
+  lol = log --graph --decorate --pretty=oneline --abbrev-commit
+  lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+  co = checkout
+  st = status
+  ci = commit
+  fa = fetch --all
+  identity = "! git config user.name $(git config user.$1.name); git config user.email $(git config user.$1.email); :"
+[pack]
+  window = 0
+  windowMemory = 256m
+  SizeLimit = 100m
+  threads = 1
+[color]
+  branch = auto
+  diff = auto
+  interactive = auto
+  status = auto
+# [user "NAME"]
+#   name = 
+#   email = 

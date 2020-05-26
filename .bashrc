@@ -4,10 +4,6 @@ export PATH="$PATH:~/bin"
 export PATH="$PATH:~/bash_scripts"
 export PATH=~/.npm-global/bin:$PATH
 
-# Android Section
-export ANDROID_HOME=~/Development/android-sdk-macosx
-export PATH=${PATH}:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools
-
 # Unset manpath so we can inherit from /etc/manpath via the `manpath`
 # command
 unset MANPATH # delete if you already modified MANPATH elsewhere in your config
@@ -44,17 +40,7 @@ PROMPT_COMMAND='history -a'
 ##### generic aslias #####
 
 alias reload='source ~/.bash_profile'
-alias editBash='subl ~/.bashrc'
-
-# add everything that needs to be added based on results of svn status
-alias svnadd="svn st | grep ^? | sed 's/?    //' | xargs svn add"
-alias svnrm="svn st | grep ^! | sed 's/!    //' | xargs svn rm"
-alias svnrmForce="svn st | grep ^! | sed 's/!    //' | xargs svn rm --force" 
-alias svncopyurl="svn info | grep ^URL | sed 's/URL: //' | tr -d '\n' | pbcopy"
-
-# sometimes I still need Wienre
-EXTERNALIP=`ifconfig en4 | awk '$1 == "inet" {print $2}'`
-alias startWienre="open http://${EXTERNALIP}:8080 & weinre --httpPort 8080 --boundHost ${EXTERNALIP}"
+alias editBash='code ~/.bashrc'
 
 # Make some possibly destructive commands more interactive.
 alias rm='rm -i'
@@ -66,20 +52,13 @@ alias ll='ls -lFG'
 alias la='ls -lahFG'
 alias ls='ls -FG'
 
-# Make grep more user friendly by highlighting matches
-# and exclude grepping through .svn folders.
-alias grep='grep --color=auto --exclude-dir=\.svn'
-
 # start a simple browser Sync session on current folder
 alias staticSync='browser-sync start --files "css/*.css, js/*.js, *.html, **/*.html" --server --directory'
 alias superStaticSync='browser-sync start --files "**/*" --server --directory'
 
-# shortcut to merge in from trunk
-alias trunkMerge="svn merge ^/trunk"
-
 # Make grep more user friendly by highlighting matches
-# and exclude grepping through .svn folders.
-alias grep='grep --color=auto --exclude-dir=\.svn'
+# and exclude grepping through .git folders.
+alias grep='grep --color=auto --exclude-dir=\.git'
 
 # sample function so you can SSH with password copied into clipboard already
 function gotoX () {
@@ -94,6 +73,24 @@ function gotoX () {
 function clip () {
   $1 | tr -d '\n' | pbcopy
 }
+
+# ACK set to use .ackrc for most commonly used
+# $@ spits out any/all arguments: example use: grack -option -option 'string'
+# output: ack --ackrc=/Users/me/.ackrc -option -option 'string'
+function grack (){
+  echo "ack --ackrc=/Users/me/.ackrc" $@
+  ack --ackrc=~/.ackrc $@
+}
+
+function androidcast () {
+  adb shell "while true; do screenrecord --output-format=h264 -; done" | ffplay -framerate 60 -probesize 32 -sync video -
+}
+
+function movToMp4 () {
+  name=$(basename $1 .mov)
+  ffmpeg -i $1 -vcodec h264 -acodec mp2 $name.mp4
+}
+
 ######################################################################
 # COLORS (used in some functions below)
 
@@ -116,24 +113,6 @@ UNDERLINE=$(tput smul)
 ##################################################################
 # personal functions
 
-function svn_ignores () {
-    svn propset svn:ignore ".DS_Store" .
-    svn propset svn:ignore "Thumbs.db" .
-    svn propset svn:ignore "node_modules" .
-}
-
-function jiraFile() {
-  # curl -D- -u {username}:{password} -X POST -H "X-Atlassian-Token: nocheck" -F "file=@{path/to/file}" http://{base-url}/rest/api/2/issue/{issue-key}/attachments
-  echo uploading $1 to http://jira.domain.com:8080/rest/api/2/issue/$2/attachments
-  curl -D- -u USERNAME:PASSWORD -X POST -H "X-Atlassian-Token: nocheck" -F "file=@$1" $1 http://JIRA-URL/rest/api/2/issue/$2/attachments
-}
-
-function jiraComment() {
-  # curl -D- -u fred:fred -X POST --data {see below} -H "Content-Type: application/json" http://kelpie9:8081/rest/api/2/issue/QA-31/comment
-  echo adding comment to $1
-  curl -D- -u USERNAME:PASSWORD -X POST --data "{\"body\":\"$2\"}" -H "Content-Type: application/json" http://JIRA-URL/rest/api/2/issue/$1/comment
-}
-
 function myzip () {
     if [ -z "$1" ]
       then
@@ -146,6 +125,7 @@ function myzip () {
     fi
 }
 
+# start a local server using PHP cli
 function localhost () {
   if [ -z "$1" ]
     then

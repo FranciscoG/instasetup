@@ -5,7 +5,8 @@
 #
 
 TARGETDIR='${HOME}'
-
+REPO='https://raw.githubusercontent.com/FranciscoG/instasetup/master'
+GIT_REPO='https://raw.githubusercontent.com/git/git/master/contrib/completion'
 
 #########################################################
 # Check which OS you are on
@@ -100,29 +101,17 @@ function dlFile () {
 
 function copyFiles () {
   
-  # .bashrc
-  # https://raw.githubusercontent.com/FranciscoG/instasetup/master/.bashrc
-  dlFile ${TARGETDIR}/.bashrc https://raw.githubusercontent.com/FranciscoG/instasetup/master/.bashrc
+  dlFile ${TARGETDIR}/.bashrc ${REPO}/.bashrc
   
-  # .bash_profile
-  # https://raw.githubusercontent.com/FranciscoG/instasetup/master/.bash_profile
-  dlFile ${TARGETDIR}/.bash_profile https://raw.githubusercontent.com/FranciscoG/instasetup/master/.bash_profile
+  dlFile ${TARGETDIR}/.bash_profile ${REPO}/.bash_profile
 
-  # .git-completion.sh
-  # https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
-  dlFile ${TARGETDIR}/.git-completion.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
+  dlFile ${TARGETDIR}/.git-completion.sh ${GIT_REPO}/git-completion.bash
 
-  # git-prompt.sh 
-  # https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh 
-  dlFile ${TARGETDIR}/.git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh 
+  dlFile ${TARGETDIR}/.git-prompt.sh ${GIT_REPO}/git-prompt.sh 
 
-  # .vimrc
-  # https://raw.githubusercontent.com/FranciscoG/instasetup/master/.vimrc
-  dlFile ${TARGETDIR}/.vimrc https://raw.githubusercontent.com/FranciscoG/instasetup/master/.vimrc
+  dlFile ${TARGETDIR}/.vimrc ${REPO}/.vimrc
 
-  # jshintrc
-  # https://raw.githubusercontent.com/FranciscoG/instasetup/master/.jshintrc
-  dlFile ${TARGETDIR}/.jshintrc https://raw.githubusercontent.com/FranciscoG/instasetup/master/.jshintrc
+  dlFile ${TARGETDIR}/.gitconfig ${REPO}/.gitconfig
 
   # changing global dir for npm to avoid permissions errors
   # https://docs.npmjs.com/getting-started/fixing-npm-permissions
@@ -132,7 +121,6 @@ function copyFiles () {
   mkdir -p ${TARGETDIR}/.vim/colors
 
   # solarized.vim
-  # https://raw.githubusercontent.com/altercation/vim-colors-solarized/master/colors/solarized.vim
   dlFile ${TARGETDIR}/.vim/colors/solarized.vim https://raw.githubusercontent.com/altercation/vim-colors-solarized/master/colors/solarized.vim
 
 }
@@ -143,12 +131,13 @@ function copyFiles () {
 
 function installPathogen () {
   # https://github.com/tpope/vim-pathogen
-  mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+  mkdir -p ~/.vim/autoload ~/.vim/bundle
+  curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 }
 
 function installVimSensible () {
   # https://github.com/tpope/vim-sensible
-  cd ~/.vim/bundle && git clone git://github.com/tpope/vim-sensible.git && cd ~
+  git clone https://tpope.io/vim/sensible.git ~/.vim/pack/tpope/start
 }
 
 #########################################################
@@ -156,40 +145,33 @@ function installVimSensible () {
 #
 
 function doPrefs () {
-  #Add a context menu item for showing the Web Inspector in web views
-  defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
+  if [ "$OS" -eq "Mac" ]; then
+    #Add a context menu item for showing the Web Inspector in web views
+    defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 
-  #Show the ${TARGETDIR}/Library folder
-  chflags nohidden ${TARGETDIR}/Library
+    #Show the ${TARGETDIR}/Library folder
+    chflags nohidden ${TARGETDIR}/Library
 
-  #Store screenshots in subfolder on desktop
-  #not sure if I want this yet so leaving it commented
-  #mkdir ${TARGETDIR}/Desktop/Screenshots
-  #defaults write com.apple.screencapture location ${TARGETDIR}/Desktop/Screenshots
-}
-
-#########################################################
-# Setting app preferences
-#
-
-function setupSubl () {
-  # Check if Sublime was installed Manually
-  if [[ -d /Applications/Sublime\ Text.app/ ]]; then
-    if [[ ! -d ${TARGETDIR}/bin ]]; then
-      mkdir -p ${TARGETDIR}/bin && ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ${TARGETDIR}/bin/subl
-    elif ! exists subl ; then
-      ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" ${TARGETDIR}/bin/subl
-    fi
-    
-    # to finish syncing packages
-    open https://packagecontrol.io/docs/syncing
+    #Store screenshots in subfolder on desktop
+    mkdir ${TARGETDIR}/Desktop/Screenshots
+    defaults write com.apple.screencapture location ${TARGETDIR}/Desktop/Screenshots
   fi
 }
+
+function apps () {
+  if [ "$OS" -eq "Mac" ]; then
+    # using brew to install my favoriite apps
+    brew cask install iterm2 node visual-studio-code google-chrome firefox keepassxc vlc
+  fi
+
+  # add linux and windows CLI install here
+}
+
 
 #########################################################
 # And finally we GO!
 #
 
-getBrew && getWget && copyFiles && doPrefs && setupSubl && installPathogen && installVimSensible
+getBrew && getWget && copyFiles && doPrefs && installPathogen && installVimSensible && apps
 
 
