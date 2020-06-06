@@ -1,10 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# set -e = If a command fails, set -e will make the whole script exit
-# set -u = Treat unset variables as an error, and immediately exit.
-# set -f = Disable filename expansion (globbing) upon seeing *, ?, etc..
-# set -o pipefail causes a pipeline (for example, curl -s https://sipb.mit.edu/ | grep foo) to produce a failure return code if any command errors
-set -euf -o pipefail
+if test "$BASH" = "" || "$BASH" -uc "a=();true \"\${a[@]}\"" 2>/dev/null; then
+    # Bash 4.4, Zsh
+    set -euo pipefail
+else
+    # Bash 4.3 and older chokes on empty arrays with set -u.
+    set -eo pipefail
+fi
+
+# require(){ hash "$@" || exit 127; }
 
 #########################################################
 # Change the TARGETDIR for testing
@@ -41,36 +45,27 @@ case "${OS}" in
 esac
 
 
-#########################################################
-# Change the TARGETDIR for testing
-#
-
-wget="$(which wget)"
-
 # check if a command line program exists
-function exists () {
-  $1 -v > /dev/null 2>&1
+exists () {
+  hash "$@" 2>/dev/null
 }
 
-function getBrew () {
+getBrew () {
   if [ "${OS}" == "Mac" ]; then
     if ! exists brew ; then
       echo "installing homebrew"
       # from: http://brew.sh/
-      /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     else
       echo "Brew already installed"
     fi
   fi
 }
 
-function platformInstaller () {
+platformInstaller () {
   if [ "${OS}" == "Mac" ]; then
     brew install "$1"
-    return
-  fi
-
-  if [ "${OS}" == "Linux" ]; then
+  elif [ "${OS}" == "Linux" ]; then
     if exists yum ; then
       yum install "$1"
     else
@@ -79,13 +74,11 @@ function platformInstaller () {
   fi
 }
 
-
-function getWget() {
-  if [ ! -f "$wget" ]; then
+getWget() {
+  if ! exists wget ; then
     echo "installing wget using homebrew"
     # from: http://www.merenbach.com/software/wget/
     platformInstaller wget
-    wget="$(which wget)"
   else
     echo "wget already installed"
   fi
@@ -93,11 +86,12 @@ function getWget() {
 
 
 ####################################################################
-# function that grabs an file at a URL and downloads it to targetDIR
+# that grabs an file at a URL and downloads it to targetDIR
 #
 
-function dlFile () {
-  # wget -O renamedFile.sh URL
+# $1 - local folder to place file
+# $2 - url source
+dlFile () {
   wget -O "$1" "$2"
 }
 
@@ -105,10 +99,9 @@ function dlFile () {
 # Download files from a URL and save them to target dir
 #
 
-function copyFiles () {
-  
+copyFiles () {
   dlFile "${TARGETDIR}/.bashrc" "${REPO}/.bashrc"
-  
+
   dlFile "${TARGETDIR}/.bash_profile" "${REPO}/.bash_profile"
 
   dlFile "${TARGETDIR}/.git-completion.sh" "${GIT_REPO}/git-completion.bash"
@@ -135,13 +128,13 @@ function copyFiles () {
 # Vim stuff
 #
 
-function installPathogen () {
+installPathogen () {
   # https://github.com/tpope/vim-pathogen
   mkdir -p ~/.vim/autoload ~/.vim/bundle
   curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 }
 
-function installVimSensible () {
+installVimSensible () {
   # https://github.com/tpope/vim-sensible
   git clone https://tpope.io/vim/sensible.git ~/.vim/pack/tpope/start
 }
@@ -150,7 +143,7 @@ function installVimSensible () {
 # Setting System preferences
 #
 
-function doPrefs () {
+doPrefs () {
   if [ "${OS}" == "Mac" ]; then
     #Add a context menu item for showing the Web Inspector in web views
     defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
@@ -164,7 +157,7 @@ function doPrefs () {
   fi
 }
 
-function apps () {
+apps () {
   if [ "${OS}" == "Mac" ]; then
     # using brew to install apps
     brew cask install iterm2 node visual-studio-code google-chrome firefox keepassxc vlc
@@ -175,7 +168,7 @@ function apps () {
 
 
 #########################################################
-# And finally we GO!
+# And finally here we GO!
 #
 
 getBrew && getWget && copyFiles && doPrefs && installPathogen && installVimSensible && apps

@@ -51,4 +51,6 @@ Of course you should always be wary of any script you're just curling from a URL
 note: 3g and 3j are created so I can use NPM without needing sudo. Explained here:
 https://github.com/sindresorhus/guides/blob/master/npm-global-without-sudo.md
 
+Bash scripting help from here and Shellcheck
 
+https://github.com/anordal/shellharden/blob/master/how_to_do_things_safely_in_bash.md
