@@ -3,12 +3,12 @@ instasetup
 
 ### for OSX
 
-Bash shell script that will download, install, and setup my **OSX** environment
+Shell script that will download, install, and setup my **OSX** environment
 
 to use, just copy and paste this into your bash terminal
 
-```Bash
-bash <(curl -s https://raw.githubusercontent.com/FranciscoG/instasetup/master/install.sh)
+```sh
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/FranciscoG/instasetup/master/install.sh)"
 ```
 
 Of course you should always be wary of any script you're just curling from a URL you don't control. All the code is either in this repo or in other open source repos.  You can look through the install.sh script yourself or go through my explanation of each item below.

@@ -1,20 +1,26 @@
 #!/bin/bash
 
+# set -e = If a command fails, set -e will make the whole script exit
+# set -u = Treat unset variables as an error, and immediately exit.
+# set -f = Disable filename expansion (globbing) upon seeing *, ?, etc..
+# set -o pipefail causes a pipeline (for example, curl -s https://sipb.mit.edu/ | grep foo) to produce a failure return code if any command errors
+set -euf -o pipefail
+
 #########################################################
 # Change the TARGETDIR for testing
 #
 
-TARGETDIR='${HOME}'
-REPO='https://raw.githubusercontent.com/FranciscoG/instasetup/master'
-GIT_REPO='https://raw.githubusercontent.com/git/git/master/contrib/completion'
+TARGETDIR="${HOME}"
+REPO="https://raw.githubusercontent.com/FranciscoG/instasetup/master"
+GIT_REPO="https://raw.githubusercontent.com/git/git/master/contrib/completion"
 
 #########################################################
 # Check which OS you are on
 # http://stackoverflow.com/a/18434831/395414
 
-# Detect the platform (similar to $OSTYPE)
-OS="`uname`"
-case $OS in
+# Detect the platform (similar to ${OS}TYPE)
+OS="$(uname)"
+case "${OS}" in
   'Linux')
     OS='Linux'
     ;;
@@ -47,7 +53,7 @@ function exists () {
 }
 
 function getBrew () {
-  if [ "$OS" -eq "Mac" ]; then
+  if [ "${OS}" == "Mac" ]; then
     if ! exists brew ; then
       echo "installing homebrew"
       # from: http://brew.sh/
@@ -59,23 +65,23 @@ function getBrew () {
 }
 
 function platformInstaller () {
-  if [ "$OS" -eq "Mac" ]; then
-    brew install $1
+  if [ "${OS}" == "Mac" ]; then
+    brew install "$1"
     return
   fi
 
-  if [ "$OS" -eq "Linux" ]; then
+  if [ "${OS}" == "Linux" ]; then
     if exists yum ; then
-      yum install $1
+      yum install "$1"
     else
-      sudo apt-get $1
+      sudo apt-get "$1"
     fi
   fi
 }
 
 
 function getWget() {
-  if [ ! -f $wget ]; then
+  if [ ! -f "$wget" ]; then
     echo "installing wget using homebrew"
     # from: http://www.merenbach.com/software/wget/
     platformInstaller wget
@@ -92,7 +98,7 @@ function getWget() {
 
 function dlFile () {
   # wget -O renamedFile.sh URL
-  wget -O $1 $2 
+  wget -O "$1" "$2"
 }
 
 #########################################################
@@ -101,27 +107,27 @@ function dlFile () {
 
 function copyFiles () {
   
-  dlFile ${TARGETDIR}/.bashrc ${REPO}/.bashrc
+  dlFile "${TARGETDIR}/.bashrc" "${REPO}/.bashrc"
   
-  dlFile ${TARGETDIR}/.bash_profile ${REPO}/.bash_profile
+  dlFile "${TARGETDIR}/.bash_profile" "${REPO}/.bash_profile"
 
-  dlFile ${TARGETDIR}/.git-completion.sh ${GIT_REPO}/git-completion.bash
+  dlFile "${TARGETDIR}/.git-completion.sh" "${GIT_REPO}/git-completion.bash"
 
-  dlFile ${TARGETDIR}/.git-prompt.sh ${GIT_REPO}/git-prompt.sh 
+  dlFile "${TARGETDIR}/.git-prompt.sh" "${GIT_REPO}/git-prompt.sh" 
 
-  dlFile ${TARGETDIR}/.vimrc ${REPO}/.vimrc
+  dlFile "${TARGETDIR}/.vimrc" "${REPO}/.vimrc"
 
-  dlFile ${TARGETDIR}/.gitconfig ${REPO}/.gitconfig
+  dlFile "${TARGETDIR}/.gitconfig" "${REPO}/.gitconfig"
 
   # changing global dir for npm to avoid permissions errors
   # https://docs.npmjs.com/getting-started/fixing-npm-permissions
-  mkdir -p ${TARGETDIR}/.npm-global
+  mkdir -p "${TARGETDIR}/.npm-global"
 
   # make .vim colors directory
-  mkdir -p ${TARGETDIR}/.vim/colors
+  mkdir -p "${TARGETDIR}/.vim/colors"
 
   # solarized.vim
-  dlFile ${TARGETDIR}/.vim/colors/solarized.vim https://raw.githubusercontent.com/altercation/vim-colors-solarized/master/colors/solarized.vim
+  dlFile "${TARGETDIR}/.vim/colors/solarized.vim" https://raw.githubusercontent.com/altercation/vim-colors-solarized/master/colors/solarized.vim
 
 }
 
@@ -145,22 +151,22 @@ function installVimSensible () {
 #
 
 function doPrefs () {
-  if [ "$OS" -eq "Mac" ]; then
+  if [ "${OS}" == "Mac" ]; then
     #Add a context menu item for showing the Web Inspector in web views
     defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 
     #Show the ${TARGETDIR}/Library folder
-    chflags nohidden ${TARGETDIR}/Library
+    chflags nohidden "${TARGETDIR}/Library"
 
     #Store screenshots in subfolder on desktop
-    mkdir ${TARGETDIR}/Desktop/Screenshots
-    defaults write com.apple.screencapture location ${TARGETDIR}/Desktop/Screenshots
+    mkdir "${TARGETDIR}/Desktop/Screenshots"
+    defaults write com.apple.screencapture location "${TARGETDIR}/Desktop/Screenshots"
   fi
 }
 
 function apps () {
-  if [ "$OS" -eq "Mac" ]; then
-    # using brew to install my favoriite apps
+  if [ "${OS}" == "Mac" ]; then
+    # using brew to install apps
     brew cask install iterm2 node visual-studio-code google-chrome firefox keepassxc vlc
   fi
 
@@ -173,5 +179,3 @@ function apps () {
 #
 
 getBrew && getWget && copyFiles && doPrefs && installPathogen && installVimSensible && apps
-
-
