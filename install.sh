@@ -160,7 +160,7 @@ doPrefs () {
 apps () {
   if [ "${OS}" == "Mac" ]; then
     # using brew to install apps
-    brew install node && brew cask install iterm2 visual-studio-code google-chrome firefox keepassxc vlc
+    brew install node && brew install --cask iterm2 visual-studio-code google-chrome firefox keepassxc vlc
   fi
 
   # add linux and windows CLI install here
