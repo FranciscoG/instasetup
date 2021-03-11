@@ -137,93 +137,33 @@ function localhost () {
   fi
 }
 
+# source ~/.git-completion.sh
+
 #####################################################################
-# Git and SVN prompt customization
+# Git prompt customization
+# https://github.com/magicmonty/bash-git-prompt
 # 
 
-# Detect whether the current directory is a git repository.
-function is_git_repository {
-  git branch > /dev/null 2>&1
-}
+if [ -f "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh" ]; then
+  __GIT_PROMPT_DIR=$(brew --prefix)/opt/bash-git-prompt/share
+  # GIT_PROMPT_ONLY_IN_REPO=1
+  # GIT_PROMPT_FETCH_REMOTE_STATUS=0   # uncomment to avoid fetching remote status
+  GIT_PROMPT_IGNORE_SUBMODULES=1 # uncomment to avoid searching for changed files in submodules
+  GIT_PROMPT_WITH_VIRTUAL_ENV=0 # uncomment to avoid setting virtual environment infos for node/python/conda environments
 
-function set_git_branch {
- 
-  # the following below is all about customizing my prompt
-  # slightly modified form this source: http://digitalformula.net/articles/pimp-my-prompt-like-paul-irish/page_4/
+  GIT_PROMPT_SHOW_UPSTREAM=1 # uncomment to show upstream tracking branch
+  # GIT_PROMPT_SHOW_UNTRACKED_FILES=normal # can be no, normal or all; determines counting of untracked files
 
-  # enable the git bash completion commands
-  #https://github.com/git/git/tree/master/contrib/completion
-  #get git-completion.sh and git-prompt.sh
-  #put them in your ~ folder and rename them to:
-  #.git-completion.sh
-  #.git-prompt.sh
-  source ~/.git-completion.sh
-  source ~/.git-prompt.sh
-   
-  # enable git unstaged indicators - set to a non-empty value
-  GIT_PS1_SHOWDIRTYSTATE="."
-   
-  # enable showing of untracked files - set to a non-empty value
-  GIT_PS1_SHOWUNTRACKEDFILES="."
-   
-  # enable stash checking - set to a non-empty value
-  GIT_PS1_SHOWSTASHSTATE="."
-   
-  # enable showing of HEAD vs its upstream
-  GIT_PS1_SHOWUPSTREAM="auto"
-   
-  # set the prompt to show current working directory and git branch name, if it exists
-   
-  # this prompt is a green username, black @ symbol, cyan host, magenta current working directory and white git branch (only shows if you're in a git branch)
-  # unstaged and untracked symbols are shown, too (see above)
-  # this prompt uses the short colour codes defined above
-  # PS1='${GREEN}\u${BLACK}@${CYAN}\h:${MAGENTA}\w${WHITE}`__git_ps1 " (%s)"`\$ '
-   
-  # this is a cyan username, @ symbol and host, magenta current working directory and white git branch
-  # it uses the shorter , but visibly more complex, codes for text colours (shorter because the colour code definitions aren't needed)
-  # PS1='\[\033[0;36m\]\u@\h\[\033[01m\]:\[\033[0;35m\]\w\[\033[00m\]\[\033[1;30m\]\[\033[0;37m\]`__git_ps1 " (%s)"`\[\033[00m\]\[\033[0;37m\]\$ '
-   
-  # return the prompt prefix for the second line
-  function set_prefix {
-      BRANCH=`__git_ps1`
-      if [[ -z $BRANCH ]]; then
-    echo "${NORMAL}>"
-      else
-    echo "${NORMAL}+>"
-      fi
-  }
-   
-  # and here's one similar to Paul Irish's famous prompt ... not sure if this is the way he does it, but it works  :)
-  # \033[s = save cursor position
-  # \033[u = restore cursor position
-   
-  PS1='${MAGENTA}\u${WHITE} in ${GREEN}\w${WHITE}${MAGENTA}`__git_ps1 " on %s"`${WHITE}\r\n`set_prefix`${NORMAL}${CYAN}\033[s\033[u${WHITE} '
-}
+  # GIT_PROMPT_SHOW_CHANGED_FILES_COUNT=0 # uncomment to avoid printing the number of changed files
 
-# Return the prompt symbol to use, colorized based on the return value of the
-# previous command.
-function set_prompt_symbol () {
-  if test $1 -eq 0 ; then
-      PROMPT_SYMBOL="\$"
-  else
-      PROMPT_SYMBOL="${RED}\$${COLOR_NONE}"
-  fi
-}
+  # GIT_PROMPT_STATUS_COMMAND=gitstatus_pre-1.7.10.sh # uncomment to support Git older than 1.7.10
 
-# Set the full bash prompt.
-function set_bash_prompt () {
-  # Set the PROMPT_SYMBOL variable. We do this first so we don't lose the 
-  # return value of the last command.
-  set_prompt_symbol $?
- 
-  # Set the BRANCH variable.
-  if is_git_repository ; then
-    set_git_branch
-  else
-    BRANCH=''
-    PS1="${MAGENTA}\u${WHITE} in ${GREEN}\w ${BRANCH}${PROMPT_SYMBOL} ${WHITE}"
-  fi  
-}
+  # GIT_PROMPT_START="\u in \w"    # uncomment for custom prompt start sequence
+  # GIT_PROMPT_END=...      # uncomment for custom prompt end sequence
 
-# Tell bash to execute this function just before displaying its prompt.
-PROMPT_COMMAND=set_bash_prompt
+  # as last entry source the gitprompt script
+  # GIT_PROMPT_THEME=Custom # use custom theme specified in file GIT_PROMPT_THEME_FILE (default ~/.git-prompt-colors.sh)
+  # GIT_PROMPT_THEME_FILE=~/.git-prompt-colors.sh
+  # GIT_PROMPT_THEME=Solarized # use theme optimized for solarized color scheme
+  source "$(brew --prefix)/opt/bash-git-prompt/share/gitprompt.sh"
+fi

@@ -158,9 +158,14 @@ doPrefs () {
 }
 
 apps () {
+  ###
+  # Prefer homebrew's git because it's updated faster and install git completion and prompt
+  # bash-git-prompt: https://github.com/magicmonty/bash-git-prompt
+  #
   if [ "${OS}" == "Mac" ]; then
-    # using brew to install apps
-    brew install node && brew install --cask iterm2 visual-studio-code google-chrome firefox keepassxc vlc
+    xcode-select --install && \
+    brew install git node bash-git-prompt && \
+    brew install --cask iterm2 visual-studio-code google-chrome firefox keepassxc vlc
   fi
 
   # add linux and windows CLI install here
