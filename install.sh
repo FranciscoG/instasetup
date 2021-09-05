@@ -112,10 +112,6 @@ copyFiles () {
 
   dlFile "${TARGETDIR}/.gitconfig" "${REPO}/.gitconfig"
 
-  # changing global dir for npm to avoid permissions errors
-  # https://docs.npmjs.com/getting-started/fixing-npm-permissions
-  mkdir -p "${TARGETDIR}/.npm-global"
-
   # make .vim colors directory
   mkdir -p "${TARGETDIR}/.vim/colors"
 
@@ -171,9 +167,17 @@ apps () {
   # add linux and windows CLI install here
 }
 
+setupNPM () {
+  # changing global dir for npm to avoid permissions errors
+  # https://docs.npmjs.com/getting-started/fixing-npm-permissions
+  # http://npm.github.io/installation-setup-docs/installing/a-note-on-permissions.html
+  mkdir -p "${TARGETDIR}/.npm-global"
+  npm config set prefix "${HOME}/.npm-global"
+}
+
 
 #########################################################
 # And finally here we GO!
 #
 
-getBrew && getWget && copyFiles && doPrefs && installPathogen && installVimSensible && apps
+getBrew && getWget && copyFiles && doPrefs && installPathogen && installVimSensible && apps && setupNPM
